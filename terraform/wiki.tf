@@ -57,7 +57,7 @@ resource "aws_iam_role" "wiki" {
 
 resource "aws_iam_policy_attachment" "wiki" {
   policy_arn = data.aws_iam_policy.ssm.arn
-  role       = aws_iam_role.wiki.id
+  roles       = [aws_iam_role.wiki.id]
   name       = "gollum-wiki-ssm"
 }
 
