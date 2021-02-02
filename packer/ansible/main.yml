@@ -1,0 +1,17 @@
+- name: All Tasks
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  vars_files:
+    ./vars.yml
+
+  tasks:
+    - name: Test
+      command: echo 'hi'
+      changed_when: false
+
+    - name: Role | Tailscale
+      import_role:
+        name: artis3n.tailscale
+      tags: molecule-notest

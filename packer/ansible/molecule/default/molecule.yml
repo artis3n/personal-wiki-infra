@@ -1,0 +1,37 @@
+dependency:
+  name: galaxy
+  options:
+    role-file: requirements.yml
+    requirements-file: requirements.yml
+driver:
+  name: docker
+lint: |
+  set -e
+  echo "PWD: "$PWD
+  ansible-lint
+platforms:
+  - name: instance
+    image: amazonlinux:2
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../../main.yml
+  inventory:
+    host_vars:
+      instance:
+        ansible_user: root
+verifier:
+  name: ansible
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+#    - verify
+    - destroy
