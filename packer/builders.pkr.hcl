@@ -10,8 +10,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo yum update",
-      "sudo yum install -y python3 python3-pip python3-wheel python3-setuptools coreutils shadow-utils"
+      "sudo yum update -y",
+      "sudo yum install -y python3 python3-pip python3-wheel python3-setuptools coreutils shadow-utils yum-utils"
     ]
   }
 

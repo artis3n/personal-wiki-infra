@@ -5,3 +5,4 @@ prepare_yum_packages:
   - python3-setuptools
   - coreutils
   - shadow-utils
+  - yum-utils

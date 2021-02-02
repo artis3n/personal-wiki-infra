@@ -2,6 +2,7 @@ resource "aws_spot_instance_request" "wiki" {
   ami                  = data.aws_ami.wiki.id
   instance_type        = var.instance_type
   iam_instance_profile = aws_iam_instance_profile.wiki.id
+  user_data            = file("${path.module}/userdata/userdata.sh")
   vpc_security_group_ids = [
     aws_security_group.wiki.id
   ]
@@ -89,11 +90,21 @@ data "aws_iam_policy_document" "wiki-secrets" {
   statement {
     effect = "Allow"
     actions = [
-      "secretsmanager:GetSecretValue",
+      "ssm:DescribeParameters",
     ]
 
     resources = [
-      data.aws_secretsmanager_secret.wiki-tailscale.arn
+      "*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameters"
+    ]
+    resources = [
+      data.aws_ssm_parameter.tailscale-key.arn
     ]
   }
 
@@ -104,7 +115,7 @@ data "aws_iam_policy_document" "wiki-secrets" {
     ]
 
     resources = [
-      data.aws_kms_key.secrets-manager.arn,
+      data.aws_kms_key.ssm.arn,
       data.aws_kms_key.aws-ebs.arn,
     ]
   }
@@ -124,14 +135,17 @@ data "aws_kms_key" "aws-ebs" {
   key_id = "alias/aws/ebs"
 }
 
-data "aws_kms_key" "secrets-manager" {
-  key_id = "alias/secrets_manager_default"
+data "aws_kms_key" "ssm" {
+  key_id = "alias/aws/ssm"
 }
 
-data "aws_secretsmanager_secret" "wiki-tailscale" {
-  name = "tailscale"
+data "aws_ssm_parameter" "tailscale-key" {
+  name            = "tailscale"
+  with_decryption = false
 }
 
 data "aws_vpc" "default-public" {
   id = var.default-vpc-id
 }
+
+data "aws_caller_identity" "current" {}
