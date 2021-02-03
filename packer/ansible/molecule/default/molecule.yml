@@ -11,7 +11,13 @@ lint: |
   ansible-lint
 platforms:
   - name: instance
-    image: amazonlinux:2
+    image: geerlingguy/docker-amazonlinux2-ansible:latest
+    # Needed for systemd
+    command: ${MOLECULE_DOCKER_COMMAND:-/lib/systemd/systemd}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
 provisioner:
   name: ansible
   playbooks:
@@ -34,4 +40,5 @@ scenario:
     - converge
     - idempotence
 #    - verify
+#    - cleanup
     - destroy

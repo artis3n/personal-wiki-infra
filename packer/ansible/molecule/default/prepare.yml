@@ -8,29 +8,18 @@
 
   tasks:
     - name: Install Ansible dependencies
-      yum:
+      ansible.builtin.yum:
         update_cache: yes
         name: "{{ prepare_yum_packages }}"
         state: present
 
-    - name: Create groups
-      group:
-        name: '{{ item }}'
-        state: present
-      loop:
-        - adm
-        - wheel
-        - ec2-user
-        - ssm-user
-
     - name: Create AWS users
-      user:
+      ansible.builtin.user:
         name: '{{ item }}'
         password: "{{ item | password_hash('sha512', 'ansiblesalt') }}"
         groups:
           - adm
           - wheel
-          - '{{ item }}'
         create_home: yes
         shell: /bin/bash
         state: present

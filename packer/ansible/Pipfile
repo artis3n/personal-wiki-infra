@@ -4,10 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+molecule = {extras = ["docker", "lint"], version = "*"}
 
 [packages]
 ansible = "*"
-molecule = {extras = ["docker", "lint"], version = "*"}
 
 [requires]
 python_version = "3.9"

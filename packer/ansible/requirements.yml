@@ -1,2 +1,5 @@
 roles:
   - name: artis3n.tailscale
+  - name: rvm.ruby
+collections:
+  - name: community.general

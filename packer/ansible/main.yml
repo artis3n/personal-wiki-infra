@@ -7,11 +7,68 @@
     ./vars.yml
 
   tasks:
-    - name: Test
-      command: echo 'hi'
-      changed_when: false
-
     - name: Role | Tailscale
       import_role:
         name: artis3n.tailscale
-      tags: molecule-notest
+      vars:
+        # Don't authenticate tailscale during the AMI build
+        tailscale_up_skip: true
+
+    - name: User | Create wiki user
+      ansible.builtin.user:
+        name: wiki
+        state: present
+
+    - name: Ruby | Install Dependencies
+      ansible.builtin.yum:
+        name: '{{ yum_dependencies }}'
+        state: present
+
+    - name: Ruby | Install RVM
+      ansible.builtin.import_role:
+        name: rvm.ruby
+      vars:
+        rvm1_rubies:
+          - 'ruby-{{ ruby_version }}'
+        rvm1_bundler_install: True
+        rvm1_install_path: '/usr/local/rvm'
+        rvm1_install_flags: '--auto-dotfiles'
+        rvm1_user: 'root'
+
+    - name: Gollum | Remove required yum packages
+      ansible.builtin.yum:
+        name: '{{ gollum_yum_remove_dependencies }}'
+        state: absent
+
+    - name: Gollum | Unarchive cmake
+      ansible.builtin.unarchive:
+        src: 'https://cmake.org/files/v{{ cmake_version }}/cmake-{{ cmake_version }}.0.tar.gz'
+        dest: '/tmp'
+        remote_src: yes
+
+    - name: Gollum | Bootstrap cmake
+      ansible.builtin.shell:
+        cmd: './bootstrap && touch /tmp/cmake-bootstrapped'
+        chdir: '/tmp/cmake-{{ cmake_version }}.0'
+        creates: '/tmp/cmake-bootstrapped'
+      async: 600
+
+    - name: Gollum | Make cmake
+      ansible.builtin.shell:
+        cmd: 'make && touch /tmp/cmake-maked'
+        chdir: '/tmp/cmake-{{ cmake_version }}.0'
+        creates: '/tmp/cmake-maked'
+      async: 600
+
+    - name: Gollum | Install cmake
+      ansible.builtin.command:
+        cmd: 'make install'
+        chdir: '/tmp/cmake-{{ cmake_version }}.0'
+        creates: '/usr/local/bin/cmake'
+
+    - name: Gollum | Install Gems
+      community.general.gem:
+        name: '{{ item }}'
+        state: present
+        user_install: no
+      loop: '{{ gollum_gems }}'

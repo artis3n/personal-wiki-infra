@@ -1,3 +1,21 @@
+gollum_gems:
+  - gollum
+  - github-markdown
+
+gollum_yum_remove_dependencies:
+  - cmake
+
+yum_dependencies:
+  - curl
+  - gpg
+  - procps
+  - make
+  - tar
+  - git
+
+cmake_version: 3.19
+ruby_version: 3.0.0
+
 prepare_yum_packages:
   - python3
   - python3-pip
