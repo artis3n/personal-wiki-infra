@@ -34,6 +34,8 @@
         rvm1_install_path: '/usr/local/rvm'
         rvm1_install_flags: '--auto-dotfiles'
         rvm1_user: 'root'
+      tags:
+        - molecule-idempotence-notest
 
     - name: Gollum | Remove required yum packages
       ansible.builtin.yum:
@@ -46,14 +48,14 @@
         dest: '/tmp'
         remote_src: yes
 
-    - name: Gollum | Bootstrap cmake
+    - name: Gollum | Bootstrap cmake - will take some time
       ansible.builtin.shell:
         cmd: './bootstrap && touch /tmp/cmake-bootstrapped'
         chdir: '/tmp/cmake-{{ cmake_version }}.0'
         creates: '/tmp/cmake-bootstrapped'
       async: 1800
 
-    - name: Gollum | Make cmake
+    - name: Gollum | Make cmake - will take some time
       ansible.builtin.shell:
         cmd: 'make && touch /tmp/cmake-maked'
         chdir: '/tmp/cmake-{{ cmake_version }}.0'
