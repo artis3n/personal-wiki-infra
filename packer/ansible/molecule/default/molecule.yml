@@ -26,6 +26,9 @@ provisioner:
     host_vars:
       instance:
         ansible_user: root
+  config_options:
+    defaults:
+      vault_password_file: "${MOLECULE_SCENARIO_DIRECTORY}/../../.vaultpass"
 verifier:
   name: ansible
 scenario:

@@ -1,0 +1,11 @@
+[Unit]
+Description="Gollum wiki"
+
+[Service]
+User={{ wiki_user.name }}
+Group={{ wiki_user.name }}
+Type=Simple
+ExecStart=/usr/local/bin/gollum {{ wiki_dir_path }} --ref main --allow-uploads page --critic-markup --user-icons identicon --h1-title --mathjax --emoji
+
+[Install]
+WantedBy=multi-user.target
