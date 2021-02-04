@@ -38,7 +38,9 @@ jobs:
         working-directory: packer/ansible
 
       - name: Molecule
-        run: echo "${{ secrets.VAULT_PASS }}" > /home/runner/work/_temp/.vaultpass && ANSIBLE_VAULT_PASSWORD_FILE=/home/runner/work/_temp/.vaultpass make test
+        run: |
+          echo "${{ secrets.VAULT_PASS }}" > /home/runner/work/_temp/.vaultpass
+          ANSIBLE_VAULT_PASSWORD_FILE=/home/runner/work/_temp/.vaultpass make test
 
   terraform-plan:
     runs-on: ubuntu-latest

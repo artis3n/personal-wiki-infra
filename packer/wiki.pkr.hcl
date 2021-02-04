@@ -83,6 +83,12 @@ variable "kms_key_id_or_alias" {
   default = "alias/aws/ebs"
 }
 
+variable "ansible_vault_pwd_file" {
+  type = string
+  description = "The relative or absolute path to the Ansible Vault password file."
+  default = env("ANSIBLE_VAULT_PASSWORD_FILE")
+}
+
 source "amazon-ebs" "wiki" {
   access_key              = var.aws_access_key
   secret_key = var.aws_secret_key
@@ -145,6 +151,7 @@ build {
     host_alias      = "wiki"
     playbook_file   = "packer/ansible/main.yml"
     user            = var.ec2_username
+    ansible_env_vars = ["ANSIBLE_VAULT_PASSWORD_FILE=${var.ansible_vault_pwd_file}"]
   }
 
   provisioner "shell" {

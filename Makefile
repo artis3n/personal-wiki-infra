@@ -12,4 +12,4 @@ test:
 
 .PHONY: build
 build:
-	pipenv run packer build packer/wiki.pkr.hcl
+	ANSIBLE_VAULT_PASSWORD_FILE=packer/ansible/.vaultpass pipenv run packer build packer/wiki.pkr.hcl
