@@ -1,9 +1,9 @@
 name: Apply
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types:
+      - published
 
 jobs:
   terraform-apply:
