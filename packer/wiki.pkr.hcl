@@ -141,12 +141,6 @@ build {
   }
 
   provisioner "ansible" {
-    extra_arguments = [
-      "-e",
-      "ansible_python_interpreter=/usr/bin/python3",
-      "--skip-tags",
-      "skip"
-    ]
     galaxy_file     = "packer/ansible/requirements.yml"
     host_alias      = "wiki"
     playbook_file   = "packer/ansible/main.yml"
