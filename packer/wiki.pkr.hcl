@@ -1,6 +1,12 @@
 # "timestamp" template function replacement
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
+variable "ec2_username" {
+  type = string
+  description = "The username of the default user on the EC2 instance."
+  default = "ec2-user"
+}
+
 variable "ami_name" {
   type    = string
   description = "The name of the AMI that gets generated."
@@ -87,7 +93,7 @@ source "amazon-ebs" "wiki" {
   instance_type           = var.instance_type[var.architecture]
   region     = var.aws_region
   ssh_interface = "session_manager"
-  ssh_username = "ssm_user"
+  ssh_username = var.ec2_username
 
   launch_block_device_mappings {
     delete_on_termination = true
@@ -144,7 +150,7 @@ build {
     galaxy_file     = "packer/ansible/requirements.yml"
     host_alias      = "wiki"
     playbook_file   = "packer/ansible/main.yml"
-    user            = "ssm-user"
+    user            = var.ec2_username
   }
 
   provisioner "shell" {
