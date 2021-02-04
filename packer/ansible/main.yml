@@ -123,6 +123,14 @@
         name: 'Sync wiki'
         job: '{{ wiki_user.home }}/backup.sh'
 
+    - name: Wiki | Copy Certbot Script
+      ansible.builtin.copy:
+        src: './files/cert.sh'
+        dest: '{{ wiki_user.home }}/cert.sh'
+        owner: '{{ wiki_user.name }}'
+        group: '{{ wiki_user.name }}'
+        mode: '0755'
+
     - name: Wiki | Copy Service File
       ansible.builtin.template:
         src: './files/gollum.service.j2'
@@ -138,7 +146,3 @@
         enabled: yes
         daemon_reload: yes
       register: wiki_service
-
-    - name: Test
-      debug:
-        var: wiki_service
