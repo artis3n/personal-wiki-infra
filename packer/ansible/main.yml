@@ -137,3 +137,8 @@
         state: started
         enabled: yes
         daemon_reload: yes
+      register: wiki_service
+
+    - name: Test
+      debug:
+        var: wiki_service

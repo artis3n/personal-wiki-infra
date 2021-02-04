@@ -4,7 +4,6 @@ wiki_repo: 'git@github.com:artis3n/personal-wiki.git'
 
 gollum_gems:
   - gollum
-  - github-markdown
 
 gollum_yum_remove_dependencies:
   - cmake

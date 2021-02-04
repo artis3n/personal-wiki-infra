@@ -5,7 +5,7 @@ Description="Gollum wiki"
 User={{ wiki_user.name }}
 Group={{ wiki_user.name }}
 Type=Simple
-ExecStart=/usr/local/bin/gollum {{ wiki_dir_path }} --ref main --allow-uploads page --critic-markup --user-icons identicon --h1-title --mathjax --emoji
+ExecStart=/usr/local/bin/gollum {{ wiki_dir_path }} --ref main --allow-uploads page --critic-markup --h1-title --mathjax --emoji --no-display-metadata
 
 [Install]
 WantedBy=multi-user.target
