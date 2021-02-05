@@ -18,6 +18,7 @@
       ansible.builtin.user:
         name: wiki
         state: present
+        system: yes
       register: wiki_user
 
     - name: Ruby | Install Dependencies
@@ -31,12 +32,15 @@
       vars:
         rvm1_rubies:
           - 'ruby-{{ ruby_version }}'
-        rvm1_bundler_install: True
         rvm1_install_path: '/usr/local/rvm'
         rvm1_install_flags: '--auto-dotfiles'
         rvm1_user: 'root'
       tags:
         - molecule-idempotence-notest
+
+    - name: Ruby | Set variables
+      ansible.builtin.set_fact:
+        gem_executable: '/usr/local/rvm/rubies/ruby-{{ ruby_version }}/bin/gem'
 
     - name: Gollum | Remove required yum packages
       ansible.builtin.yum:
@@ -74,6 +78,7 @@
         name: '{{ item }}'
         state: present
         user_install: no
+        executable: '{{ gem_executable }}'
       loop: '{{ gollum_gems }}'
 
     - name: Wiki | Create Directory

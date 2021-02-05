@@ -13,3 +13,19 @@ test:
 .PHONY: build
 build:
 	ANSIBLE_VAULT_PASSWORD_FILE=packer/ansible/.vaultpass pipenv run packer build packer/wiki.pkr.hcl
+
+.PHONY: init
+init:
+	cd terraform && terraform init
+
+.PHONY: plan
+plan: init
+	cd terraform && terraform plan
+
+.PHONY: apply
+apply: init
+	cd terraform && terraform apply
+
+.PHONY: destroy
+destroy: init
+	cd terraform && terraform destroy
