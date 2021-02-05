@@ -21,7 +21,6 @@
           - adm
           - wheel
         create_home: yes
-        shell: /bin/bash
         state: present
       loop:
         - ec2-user
