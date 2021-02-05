@@ -10,6 +10,10 @@ install:
 lint:
 	cd packer/ansible && pipenv run ansible-lint
 
+.PHONY: format
+format:
+	cd terraform && terraform fmt
+
 .PHONY: test
 test:
 	cd packer/ansible && pipenv run molecule test

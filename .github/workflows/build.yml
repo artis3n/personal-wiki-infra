@@ -17,6 +17,11 @@ jobs:
         with:
           python-version: '3.9'
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1.2.1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
       - name: Install Project dependencies
         run: |
           python -m pip install --upgrade pip
@@ -46,3 +51,11 @@ jobs:
           AWS_POLL_DELAY_SECONDS: 60
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Init
+        run: terraform init
+        working-directory: terraform
+      
+      - name: Apply
+        run: terraform apply -auto-approve
+        working-directory: terraform

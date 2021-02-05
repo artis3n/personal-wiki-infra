@@ -5,5 +5,5 @@ output "wiki-dns" {
 
 output "wiki-instance-id" {
   description = "Instance ID to use for AWS Session Manager connections."
-  value = aws_spot_instance_request.wiki.spot_instance_id
+  value       = aws_spot_instance_request.wiki.spot_instance_id
 }
