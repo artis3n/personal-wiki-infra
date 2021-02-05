@@ -45,15 +45,6 @@
           - rvm
       register: wiki_user
 
-    # - name: User | Set Path
-    #   ansible.builtin.blockinfile:
-    #     path: '{{ item }}/.bash_profile'
-    #     block: |
-    #       'export PATH=/usr/local/bin:$PATH'
-    #   loop:
-    #     - '{{ wiki_user.home }}'
-    #     - '/home/ec2-user'
-
     - name: Gollum | Remove required yum packages
       ansible.builtin.yum:
         name: '{{ gollum_yum_remove_dependencies }}'
