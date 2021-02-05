@@ -27,11 +27,11 @@ resource "aws_spot_instance_request" "wiki" {
   }
 
   provisioner "local-exec" {
-    command = "aws ec2 create-tags --resources ${self.spot_instance_id} --tags Key=Name,Value=${self.tags.Name} --region us-east-1"
+    command = "aws --region ${var.aws-region} ec2 create-tags --resources ${self.spot_instance_id} --tags Key=Name,Value=${self.tags.Name}"
   }
 
   provisioner "local-exec" {
-    command = "aws ec2 wait instance-running --instance-ids ${self.spot_instance_id}"
+    command = "aws --region ${var.aws-region} ec2 wait instance-running --instance-ids ${self.spot_instance_id}"
   }
 }
 

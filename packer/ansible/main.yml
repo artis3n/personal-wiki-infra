@@ -136,9 +136,9 @@
     - name: Wiki | Copy Certbot Script
       ansible.builtin.copy:
         src: './files/cert.sh'
-        dest: '{{ wiki_user.home }}/cert.sh'
-        owner: '{{ wiki_user.name }}'
-        group: '{{ wiki_user.name }}'
+        dest: '/home/ec2-user/cert.sh'
+        owner: 'ec2-user'
+        group: 'ec2-user'
         mode: '0755'
 
     - name: Wiki | Copy Service File
