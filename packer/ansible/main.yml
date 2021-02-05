@@ -14,14 +14,7 @@
         # Don't authenticate tailscale during the AMI build
         tailscale_up_skip: true
 
-    - name: User | Create wiki user
-      ansible.builtin.user:
-        name: wiki
-        state: present
-        system: yes
-      register: wiki_user
-
-    - name: Ruby | Install Dependencies
+    - name: System | Install Dependencies
       ansible.builtin.yum:
         name: '{{ yum_dependencies }}'
         state: present
@@ -40,7 +33,26 @@
 
     - name: Ruby | Set variables
       ansible.builtin.set_fact:
-        gem_executable: '/usr/local/rvm/rubies/ruby-{{ ruby_version }}/bin/gem'
+        gem_executable: '/usr/local/rvm/wrappers/ruby-{{ ruby_version }}/bin/gem'
+
+    - name: User | Create wiki user
+      ansible.builtin.user:
+        name: wiki
+        state: present
+        system: yes
+        create_home: yes
+        groups:
+          - rvm
+      register: wiki_user
+
+    - name: User | Set Path
+      ansible.builtin.blockinfile:
+        path: '{{ item }}/.bash_profile'
+        block: |
+          'export PATH=/usr/local/bin:$PATH'
+      loop:
+        - '{{ wiki_user.home }}'
+        - '/home/ec2-user'
 
     - name: Gollum | Remove required yum packages
       ansible.builtin.yum:
@@ -68,7 +80,7 @@
       async: 1800
 
     - name: Gollum | Install cmake
-      ansible.builtin.command:
+      ansible.builtin.shell:
         cmd: 'make install'
         chdir: '/tmp/cmake-{{ cmake_version }}.0'
         creates: '/usr/local/bin/cmake'
@@ -80,6 +92,7 @@
         user_install: no
         executable: '{{ gem_executable }}'
       loop: '{{ gollum_gems }}'
+      become_user: '{{ wiki_user.name }}'
 
     - name: Wiki | Create Directory
       ansible.builtin.file:

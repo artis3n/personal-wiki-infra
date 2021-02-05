@@ -6,6 +6,10 @@ install:
 	pipenv run ansible-galaxy role install --force-with-deps --role-file packer/ansible/requirements.yml
 	pipenv run ansible-galaxy collection install --force-with-deps --requirements-file packer/ansible/requirements.yml
 
+.PHONY: lint
+lint:
+	cd packer/ansible && pipenv run ansible-lint
+
 .PHONY: test
 test:
 	cd packer/ansible && pipenv run molecule test

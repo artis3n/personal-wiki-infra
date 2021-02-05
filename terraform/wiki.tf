@@ -14,7 +14,9 @@ resource "aws_spot_instance_request" "wiki" {
   }
 
   metadata_options {
-    http_endpoint = "disabled"
+    http_endpoint = "enabled"
+    http_put_response_hop_limit = 1
+    http_tokens = "required"
   }
 
   wait_for_fulfillment = true
