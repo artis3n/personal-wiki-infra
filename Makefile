@@ -10,9 +10,14 @@ install:
 lint:
 	cd packer/ansible && pipenv run ansible-lint
 
+.PHONY: validate
+validate:
+	pipenv run packer validate packer/wiki.pkr.hcl
+
 .PHONY: format
 format:
 	cd terraform && terraform fmt
+	pipenv run packer fmt packer/wiki.pkr.hcl
 
 .PHONY: test
 test:

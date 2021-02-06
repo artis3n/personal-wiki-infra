@@ -2,104 +2,104 @@
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
 variable "ec2_username" {
-  type = string
+  type        = string
   description = "The username of the default user on the EC2 instance."
-  default = "ec2-user"
+  default     = "ec2-user"
 }
 
 variable "ami_name" {
-  type    = string
+  type        = string
   description = "The name of the AMI that gets generated."
-  default = "packer-gollum-wiki"
+  default     = "packer-gollum-wiki"
 }
 
 variable "architecture" {
-  type    = string
+  type        = string
   description = "The type of source AMI architecture: either x86_64 or arm64."
-  default = "arm64"
+  default     = "arm64"
 }
 
 variable "aws_access_key" {
-  type    = string
+  type        = string
   description = "AWS_ACCESS_KEY_ID env var."
-  default = env("AWS_ACCESS_KEY_ID")
+  default     = env("AWS_ACCESS_KEY_ID")
 }
 
 variable "aws_region" {
-  type    = string
+  type        = string
   description = "The AWS region to create the image in. Defaults to us-east-2."
-  default = "us-east-2"
+  default     = "us-east-2"
 }
 
 variable "aws_secret_key" {
-  type      = string
+  type        = string
   description = "AWS_SECRET_ACCESS_KEY env var."
-  default   = env("AWS_SECRET_ACCESS_KEY")
-  sensitive = true
+  default     = env("AWS_SECRET_ACCESS_KEY")
+  sensitive   = true
 }
 
 variable "disk_size" {
-  type    = number
+  type        = number
   description = "The size of the EBS volume to create."
-  default = 15
+  default     = 15
 }
 
 variable "disk_type" {
-  type = string
+  type        = string
   description = "The type of EBS volume to create. Defaults to gp3."
-  default = "gp3"
+  default     = "gp3"
 }
 
 variable "disk_throughput" {
-  type = number
+  type        = number
   description = "The MB/s of throughput for the EBS volume. For GP3 volumes, this defaults to 125."
-  default = 125
+  default     = 125
 }
 
 variable "disk_iops" {
-  type = number
+  type        = number
   description = "The IOPS for the EBS volume. For GP3 volumes, this defaults to 3000."
-  default = 3000
+  default     = 3000
 }
 
 variable "iam_instance_profile" {
-  type    = string
-  default = "AmazonSSMRoleForInstancesQuickSetup"
+  type        = string
+  default     = "AmazonSSMRoleForInstancesQuickSetup"
   description = "IAM instance profile configured for AWS Session Manager. Defaults to the default AWS role for Session Manager."
 }
 
 variable "instance_type" {
-  type    = map(string)
+  type        = map(string)
   description = "The type of EC2 instance to create. Defaults are set for x86_64 and arm64 architectures. Overwrite the one that you want by architecture."
   default = {
-    "x86_64": "t3.micro",
-    "arm64": "t4g.micro"
+    "x86_64" : "t3.micro",
+    "arm64" : "t4g.micro"
   }
 }
 
 variable "kms_key_id_or_alias" {
-  type    = string
+  type        = string
   description = "The KMS key ID or alias to encrypt the AMI with. Defaults to the default EBS key alias."
-  default = "alias/aws/ebs"
+  default     = "alias/aws/ebs"
 }
 
 variable "ansible_vault_pwd_file" {
-  type = string
+  type        = string
   description = "The relative or absolute path to the Ansible Vault password file."
-  default = env("ANSIBLE_VAULT_PASSWORD_FILE")
+  default     = env("ANSIBLE_VAULT_PASSWORD_FILE")
 }
 
 source "amazon-ebs" "wiki" {
   access_key              = var.aws_access_key
-  secret_key = var.aws_secret_key
+  secret_key              = var.aws_secret_key
   ami_description         = "Gollum wiki hosted on AWS"
   ami_name                = "${var.ami_name}-${local.timestamp}"
   ami_virtualization_type = "hvm"
   iam_instance_profile    = var.iam_instance_profile
   instance_type           = var.instance_type[var.architecture]
-  region     = var.aws_region
-  ssh_interface = "session_manager"
-  ssh_username = var.ec2_username
+  region                  = var.aws_region
+  ssh_interface           = "session_manager"
+  ssh_username            = var.ec2_username
 
   launch_block_device_mappings {
     delete_on_termination = true
@@ -107,9 +107,9 @@ source "amazon-ebs" "wiki" {
     encrypted             = true
     kms_key_id            = var.kms_key_id_or_alias
     volume_size           = var.disk_size
-    volume_type = var.disk_type
-    throughput = var.disk_throughput
-    iops = var.disk_iops
+    volume_type           = var.disk_type
+    throughput            = var.disk_throughput
+    iops                  = var.disk_iops
   }
 
   source_ami_filter {
@@ -131,10 +131,11 @@ source "amazon-ebs" "wiki" {
 
 build {
   sources = ["source.amazon-ebs.wiki"]
-  name = "Personal Wiki"
+  name    = "Personal Wiki"
 
   provisioner "shell" {
     inline = [
+      "echo Beginning to build ${build.ID}",
       "echo Connected via SSM at '${build.User}@${build.Host}:${build.Port}'"
     ]
   }
@@ -147,20 +148,21 @@ build {
   }
 
   provisioner "ansible" {
-    galaxy_file     = "packer/ansible/requirements.yml"
-    host_alias      = "wiki"
-    playbook_file   = "packer/ansible/main.yml"
-    user            = var.ec2_username
+    galaxy_file      = "packer/ansible/requirements.yml"
+    host_alias       = "wiki"
+    playbook_file    = "packer/ansible/main.yml"
+    user             = var.ec2_username
     ansible_env_vars = ["ANSIBLE_VAULT_PASSWORD_FILE=${var.ansible_vault_pwd_file}"]
   }
 
-  provisioner "shell" {
-    expect_disconnect = true
-    inline            = ["sudo systemctl reboot"]
+  provisioner "shell-local" {
+    inline = ["aws --region ${var.aws_region} ec2 reboot-instances --instance-ids ${build.ID}"]
   }
 
   provisioner "shell" {
-    inline = ["echo System rebooted, done provisioning"]
+    inline       = ["echo System rebooted, done provisioning"]
+    pause_before = "1m"
+    max_retries  = 3
   }
 
 }
