@@ -8,10 +8,19 @@
 
   tasks:
     - name: Test Nginx Server
-      ansible.builtin.command:
-        cmd: curl http://127.0.0.1:80/
-      register: curl_cmd
+      ansible.builtin.uri:
+        url: http://127.0.0.1:80/
+      register: nginx_uri
 
-    - name: Test
-      debug:
-        var: curl_cmd
+    - name: Test Gollum Server
+      ansible.builtin.uri:
+        url: http://127.0.0.1:4567/
+      register: gollum_uri
+
+    - name: Assertions
+      assert:
+        that:
+          - nginx_uri.status == 200
+          - gollum_uri.status == 200
+          - nginx_uri.url is search("\/gollum")
+          - gollum_uri.url is search("\/gollum")
