@@ -1,0 +1,9 @@
+- name: User | Create wiki user
+  ansible.builtin.user:
+    name: wiki
+    state: present
+    system: yes
+    create_home: yes
+    groups:
+      - rvm
+  register: wiki_user

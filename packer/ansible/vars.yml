@@ -20,6 +20,11 @@ yum_dependencies:
   - git
   - cronie
 
+certbot_yum_dependencies:
+  - nginx
+  - certbot
+  - python2-certbot-nginx
+
 prepare_yum_packages:
   - python3
   - python3-pip

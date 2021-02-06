@@ -1,0 +1,70 @@
+- name: Wiki | Create Directory
+  ansible.builtin.file:
+    path: '{{ wiki_dir_path }}'
+    state: directory
+    owner: '{{ wiki_user.name }}'
+    group: '{{ wiki_user.name }}'
+    mode: '0755'
+
+- name: Wiki | Create SSH Directory
+  ansible.builtin.file:
+    path: '{{ wiki_user.home }}/.ssh'
+    state: directory
+    owner: '{{ wiki_user.name }}'
+    group: '{{ wiki_user.name }}'
+    mode: '0700'
+  register: ssh_dir
+
+- name: Wiki | Copy Deploy Key
+  ansible.builtin.copy:
+    src: './files/wiki_deploy_key'
+    dest: '{{ ssh_dir.path }}/{{ wiki_deploy_key }}'
+    owner: '{{ wiki_user.name }}'
+    group: '{{ wiki_user.name }}'
+    mode: '0600'
+
+- name: Wiki | Clone Wiki Repo
+  ansible.builtin.git:
+    repo: '{{ wiki_repo }}'
+    dest: '{{ wiki_dir_path }}'
+    version: 'main'
+    accept_hostkey: yes
+    key_file: '{{ ssh_dir.path }}/{{ wiki_deploy_key }}'
+  become_user: '{{ wiki_user.name }}'
+
+- name: Wiki | Copy Sync Script
+  ansible.builtin.copy:
+    src: './files/backup.sh'
+    dest: '{{ wiki_user.home }}/backup.sh'
+    owner: '{{ wiki_user.name }}'
+    group: '{{ wiki_user.name }}'
+    mode: '0755'
+
+- name: Wiki | Set Sync Cron
+  ansible.builtin.cron:
+    name: 'Sync wiki'
+    job: '{{ wiki_user.home }}/backup.sh'
+
+- name: Wiki | Copy Certbot Script
+  ansible.builtin.copy:
+    src: './files/cert.sh'
+    dest: '/home/ec2-user/cert.sh'
+    owner: 'ec2-user'
+    group: 'ec2-user'
+    mode: '0755'
+
+- name: Wiki | Copy Service File
+  ansible.builtin.template:
+    src: './files/gollum.service.j2'
+    dest: '/etc/systemd/system/gollum.service'
+    owner: '{{ wiki_user.name }}'
+    group: '{{ wiki_user.name }}'
+    mode: '0755'
+
+- name: Wiki | Enable Systemd Service
+  ansible.builtin.systemd:
+    name: 'gollum.service'
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  register: wiki_service

@@ -1,0 +1,4 @@
+- name: System | Install Dependencies
+  ansible.builtin.yum:
+    name: '{{ yum_dependencies }}'
+    state: present

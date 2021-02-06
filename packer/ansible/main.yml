@@ -14,145 +14,17 @@
         # Don't authenticate tailscale during the AMI build
         tailscale_up_skip: true
 
-    - name: System | Install Dependencies
-      ansible.builtin.yum:
-        name: '{{ yum_dependencies }}'
-        state: present
+    - ansible.builtin.import_tasks: 'tasks/system.yml'
 
-    - name: Ruby | Install RVM
-      ansible.builtin.import_role:
-        name: rvm.ruby
-      vars:
-        rvm1_rubies:
-          - 'ruby-{{ ruby_version }}'
-        rvm1_install_path: '/usr/local/rvm'
-        rvm1_install_flags: '--auto-dotfiles'
-        rvm1_user: 'root'
-      tags:
-        - molecule-idempotence-notest
+    - ansible.builtin.import_tasks: 'tasks/ruby.yml'
 
-    - name: Ruby | Set variables
-      ansible.builtin.set_fact:
-        gem_executable: '/usr/local/rvm/rubies/ruby-{{ ruby_version }}/bin/gem'
+    - ansible.builtin.import_tasks: 'tasks/user.yml'
 
-    - name: User | Create wiki user
-      ansible.builtin.user:
-        name: wiki
-        state: present
-        system: yes
-        create_home: yes
-        groups:
-          - rvm
-      register: wiki_user
+    - ansible.builtin.import_tasks: 'tasks/nginx.yml'
 
-    - name: Gollum | Remove required yum packages
-      ansible.builtin.yum:
-        name: '{{ gollum_yum_remove_dependencies }}'
-        state: absent
+    - ansible.builtin.import_tasks: 'tasks/gollum.yml'
 
-    - name: Gollum | Unarchive cmake
-      ansible.builtin.unarchive:
-        src: 'https://cmake.org/files/v{{ cmake_version }}/cmake-{{ cmake_version }}.0.tar.gz'
-        dest: '/tmp'
-        remote_src: yes
+    - ansible.builtin.import_tasks: 'tasks/wiki.yml'
 
-    - name: Gollum | Bootstrap cmake - will take some time
-      ansible.builtin.shell:
-        cmd: './bootstrap && touch /tmp/cmake-bootstrapped'
-        chdir: '/tmp/cmake-{{ cmake_version }}.0'
-        creates: '/tmp/cmake-bootstrapped'
-      async: 1800
-
-    - name: Gollum | Make cmake - will take some time
-      ansible.builtin.shell:
-        cmd: 'make && touch /tmp/cmake-maked'
-        chdir: '/tmp/cmake-{{ cmake_version }}.0'
-        creates: '/tmp/cmake-maked'
-      async: 1800
-
-    - name: Gollum | Install cmake
-      ansible.builtin.shell:
-        cmd: 'make install'
-        chdir: '/tmp/cmake-{{ cmake_version }}.0'
-        creates: '/usr/local/bin/cmake'
-
-    - name: Gollum | Install Gems
-      community.general.gem:
-        name: '{{ item }}'
-        state: present
-        user_install: no
-        executable: '{{ gem_executable }}'
-      loop: '{{ gollum_gems }}'
-      environment:
-        PATH: '/usr/local/bin:{{ ansible_env.PATH }}'
-
-    - name: Wiki | Create Directory
-      ansible.builtin.file:
-        path: '{{ wiki_dir_path }}'
-        state: directory
-        owner: '{{ wiki_user.name }}'
-        group: '{{ wiki_user.name }}'
-        mode: '0755'
-
-    - name: Wiki | Create SSH Directory
-      ansible.builtin.file:
-        path: '{{ wiki_user.home }}/.ssh'
-        state: directory
-        owner: '{{ wiki_user.name }}'
-        group: '{{ wiki_user.name }}'
-        mode: '0700'
-      register: ssh_dir
-
-    - name: Wiki | Copy Deploy Key
-      ansible.builtin.copy:
-        src: './files/wiki_deploy_key'
-        dest: '{{ ssh_dir.path }}/{{ wiki_deploy_key }}'
-        owner: '{{ wiki_user.name }}'
-        group: '{{ wiki_user.name }}'
-        mode: '0600'
-
-    - name: Wiki | Clone Wiki Repo
-      ansible.builtin.git:
-        repo: '{{ wiki_repo }}'
-        dest: '{{ wiki_dir_path }}'
-        version: 'main'
-        accept_hostkey: yes
-        key_file: '{{ ssh_dir.path }}/{{ wiki_deploy_key }}'
-      become_user: '{{ wiki_user.name }}'
-
-    - name: Wiki | Copy Sync Script
-      ansible.builtin.copy:
-        src: './files/backup.sh'
-        dest: '{{ wiki_user.home }}/backup.sh'
-        owner: '{{ wiki_user.name }}'
-        group: '{{ wiki_user.name }}'
-        mode: '0755'
-
-    - name: Wiki | Set Sync Cron
-      ansible.builtin.cron:
-        name: 'Sync wiki'
-        job: '{{ wiki_user.home }}/backup.sh'
-
-    - name: Wiki | Copy Certbot Script
-      ansible.builtin.copy:
-        src: './files/cert.sh'
-        dest: '/home/ec2-user/cert.sh'
-        owner: 'ec2-user'
-        group: 'ec2-user'
-        mode: '0755'
-
-    - name: Wiki | Copy Service File
-      ansible.builtin.template:
-        src: './files/gollum.service.j2'
-        dest: '/etc/systemd/system/gollum.service'
-        owner: '{{ wiki_user.name }}'
-        group: '{{ wiki_user.name }}'
-        mode: '0755'
-
-    - name: Wiki | Enable Systemd Service
-      ansible.builtin.systemd:
-        name: 'gollum.service'
-        state: started
-        enabled: yes
-        daemon_reload: yes
-      register: wiki_service
+  handlers:
+    - ansible.builtin.import_tasks: 'handlers/handlers.yml'

@@ -1,0 +1,18 @@
+- name: Nginx | Setup EPEL
+  ansible.builtin.shell:
+    cmd: amazon-linux-extras install epel -y && touch /tmp/epel-released
+    creates: /tmp/epel-released
+
+- name: Nginx | Install Dependencies
+  ansible.builtin.yum:
+    name: '{{ certbot_yum_dependencies }}'
+    state: present
+
+- name: Nginx | Copy Config
+  ansible.builtin.copy:
+    src: './files/nginx.conf'
+    dest: '/etc/nginx/nginx.conf'
+    owner: root
+    group: root
+    mode: '0644'
+  notify: 'Reload Nginx'
