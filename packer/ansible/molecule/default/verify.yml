@@ -22,5 +22,5 @@
         that:
           - nginx_uri.status == 200
           - gollum_uri.status == 200
-          - nginx_uri.url is search("\/gollum")
-          - gollum_uri.url is search("\/gollum")
+          - nginx_uri.url is search("\/Home")
+          - gollum_uri.url is search("\/Home")

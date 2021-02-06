@@ -5,7 +5,7 @@ Description="Gollum wiki"
 User={{ wiki_user.name }}
 Group={{ wiki_user.name }}
 Type=simple
-ExecStart=/usr/local/rvm/wrappers/ruby-{{ ruby_version }}/gollum {{ wiki_dir_path }} --allow-uploads page --critic-markup --mathjax --emoji --no-display-metadata
+ExecStart=/usr/local/rvm/wrappers/ruby-{{ ruby_version }}/gollum {{ wiki_dir_path }} --ref main --allow-uploads page --critic-markup --mathjax --emoji --no-display-metadata
 
 [Install]
 WantedBy=multi-user.target

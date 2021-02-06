@@ -16,3 +16,11 @@
     group: root
     mode: '0644'
   notify: 'Reload Nginx'
+
+- name: Nginx | Copy Certbot Script
+  ansible.builtin.copy:
+    src: './files/cert.sh'
+    dest: '/home/ec2-user/cert.sh'
+    owner: 'ec2-user'
+    group: 'ec2-user'
+    mode: '0755'
