@@ -1,12 +1,6 @@
 # "timestamp" template function replacement
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
-variable "ec2_username" {
-  type        = string
-  description = "The username of the default user on the EC2 instance."
-  default     = "ec2-user"
-}
-
 variable "ami_name" {
   type        = string
   description = "The name of the AMI that gets generated."
@@ -19,10 +13,13 @@ variable "architecture" {
   default     = "arm64"
 }
 
-variable "aws_access_key" {
-  type        = string
-  description = "AWS_ACCESS_KEY_ID env var."
-  default     = env("AWS_ACCESS_KEY_ID")
+variable "instance_type" {
+  type        = map(string)
+  description = "The type of EC2 instance to create. Defaults are set for x86_64 and arm64 architectures. Overwrite the one that you want by architecture."
+  default = {
+    "x86_64" : "t3.micro",
+    "arm64" : "t4g.micro"
+  }
 }
 
 variable "aws_region" {
@@ -31,17 +28,23 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "disk_size" {
+  type        = number
+  description = "The size of the EBS volume to create."
+  default     = 15
+}
+
+variable "aws_access_key" {
+  type        = string
+  description = "AWS_ACCESS_KEY_ID env var."
+  default     = env("AWS_ACCESS_KEY_ID")
+}
+
 variable "aws_secret_key" {
   type        = string
   description = "AWS_SECRET_ACCESS_KEY env var."
   default     = env("AWS_SECRET_ACCESS_KEY")
   sensitive   = true
-}
-
-variable "disk_size" {
-  type        = number
-  description = "The size of the EBS volume to create."
-  default     = 15
 }
 
 variable "disk_type" {
@@ -68,15 +71,6 @@ variable "iam_instance_profile" {
   description = "IAM instance profile configured for AWS Session Manager. Defaults to the default AWS role for Session Manager."
 }
 
-variable "instance_type" {
-  type        = map(string)
-  description = "The type of EC2 instance to create. Defaults are set for x86_64 and arm64 architectures. Overwrite the one that you want by architecture."
-  default = {
-    "x86_64" : "t3.micro",
-    "arm64" : "t4g.micro"
-  }
-}
-
 variable "kms_key_id_or_alias" {
   type        = string
   description = "The KMS key ID or alias to encrypt the AMI with. Defaults to the default EBS key alias."
@@ -89,6 +83,12 @@ variable "ansible_vault_pwd_file" {
   default     = env("ANSIBLE_VAULT_PASSWORD_FILE")
 }
 
+variable "ec2_username" {
+  type        = string
+  description = "The username of the default user on the EC2 instance."
+  default     = "ec2-user"
+}
+
 source "amazon-ebs" "wiki" {
   access_key              = var.aws_access_key
   secret_key              = var.aws_secret_key
@@ -98,7 +98,7 @@ source "amazon-ebs" "wiki" {
   iam_instance_profile    = var.iam_instance_profile
   instance_type           = var.instance_type[var.architecture]
   region                  = var.aws_region
-  ssh_interface           = "session_manager"
+//  ssh_interface           = "session_manager"
   ssh_username            = var.ec2_username
 
   launch_block_device_mappings {
@@ -135,13 +135,9 @@ build {
 
   provisioner "shell" {
     inline = [
+      "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
       "echo Beginning to build ${build.ID}",
-      "echo Connected via SSM at '${build.User}@${build.Host}:${build.Port}'"
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
+      "echo Connected via SSM at '${build.User}@${build.Host}:${build.Port}'",
       "sudo yum update -y",
       "sudo yum install -y python3 python3-pip python3-wheel python3-setuptools coreutils shadow-utils yum-utils"
     ]
@@ -155,14 +151,14 @@ build {
     ansible_env_vars = ["ANSIBLE_VAULT_PASSWORD_FILE=${var.ansible_vault_pwd_file}"]
   }
 
-  provisioner "shell-local" {
-    inline = ["aws --region ${var.aws_region} ec2 reboot-instances --instance-ids ${build.ID}"]
+  provisioner "shell" {
+    inline = ["sudo reboot"]
+    expect_disconnect = true
   }
 
   provisioner "shell" {
-    inline       = ["echo System rebooted, done provisioning"]
+    inline       = ["echo ${build.ID} rebooted, done provisioning"]
     pause_before = "1m"
-    max_retries  = 3
   }
 
 }

@@ -1,6 +1,8 @@
+wiki_repo: 'git@github.com:artis3n/personal-wiki.git'
+wiki_domain: 'wiki.artis3nal.com'
+
 wiki_dir_path: '/opt/wiki'
 wiki_deploy_key: 'wiki_deploy_key'
-wiki_repo: 'git@github.com:artis3n/personal-wiki.git'
 
 cmake_version: '3.19'
 ruby_version: '2.7.2'
