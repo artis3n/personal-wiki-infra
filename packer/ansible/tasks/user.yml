@@ -7,3 +7,14 @@
     groups:
       - rvm
   register: wiki_user
+
+- name: User | Ensure Git User
+  community.general.git_config:
+    name: '{{ item.name }}'
+    value: '{{ item.value }}'
+    scope: 'global'
+    state: 'present'
+  become_user: '{{ wiki_user.name }}'
+  loop: '{{ git_config }}'
+  tags:
+    - molecule-idempotence-notest

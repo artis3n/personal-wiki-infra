@@ -1,5 +1,7 @@
 wiki_repo: 'git@github.com:artis3n/personal-wiki.git'
 wiki_domain: 'wiki.artis3nal.com'
+git_config:
+  - { name: 'user.name', value: 'Gollum Wiki' }
 
 wiki_dir_path: '/opt/wiki'
 wiki_deploy_key: 'wiki_deploy_key'
