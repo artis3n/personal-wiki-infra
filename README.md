@@ -1,5 +1,12 @@
 # Personal Wiki Infrastructure
 
+![CI](https://github.com/artis3n/personal-wiki-infra/workflows/CI/badge.svg)
+![Deployment](https://github.com/artis3n/personal-wiki-infra/workflows/Apply/badge.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/artis3n/personal-wiki-infra)
+![GitHub](https://img.shields.io/github/license/artis3n/personal-wiki-infra)
+[![GitHub followers](https://img.shields.io/github/followers/artis3n?style=social)](https://github.com/artis3n/)
+[![Twitter Follow](https://img.shields.io/twitter/follow/artis3n?style=social)](https://twitter.com/Artis3n)
+
 This repository contains all the necessary infrastructure automation to run a private [Gollum][] server in your AWS account.
 Once running, the server automatically backs up and restores all wiki data to a private GitHub repository every minute.
 
