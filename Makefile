@@ -42,13 +42,3 @@ apply: init
 .PHONY: destroy
 destroy: init
 	cd terraform && terraform destroy
-
-.PHONY: check-env
-check-env:
-ifndef INSTANCE_ID
-	$(error "INSTANCE_ID is undefined. Set this environment variable from the output of 'make apply'.")
-endif
-
-.PHONY: ip
-ip: check-env
-	aws --region "$${AWS_REGION:-us-east-2}" ssm send-command --instance-ids "$${INSTANCE_ID}" --document-name "AWS-RunShellScript" --parameters commands="tailscale netcheck | grep IPv4 | awk '{ print $4 }' | cut -d ':' -f1" --output text

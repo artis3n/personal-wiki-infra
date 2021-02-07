@@ -1,4 +1,4 @@
-# Personal Wiki Infrastructure
+# Personal Wiki Infrastructure <!-- omit in toc -->
 
 ![CI](https://github.com/artis3n/personal-wiki-infra/workflows/CI/badge.svg)
 ![Deployment](https://github.com/artis3n/personal-wiki-infra/workflows/Apply/badge.svg)
@@ -16,6 +16,12 @@ Key Benefits:
 - No open ingress ports on the server with terminal access via AWS Session Manager
 - Easy to deploy! Fork, tweak a few variables, then run two commands to build your own AMI and deploy a private server
 - Pay ~$1.80/month if running 24/7 depending on spot instance prices
+
+- [Setup](#setup)
+- [Usage](#usage)
+  - [Initial Configuration](#initial-configuration)
+  - [Run](#run)
+  - [Next Steps](#next-steps)
 
 # Setup
 
@@ -108,7 +114,14 @@ Once SSH'd in, you can run the Certbot installation of a Let's Encrypt certifica
 # Follow Certbot's prompts for manual DNS validation on a domain you control.
 ```
 
-You can retrieve the private IP address of this server from your Tailscale network by running `INSTANCE_ID=<INSTANCE_ID> make ip`.
+You can retrieve the private IP address of this server from your Tailscale network by SSH'ing into the server with Session Manager and running:
+
+```bash
+> sudo -u ec2-user /bin/bash
+> /home/ec2-user/tailscale_ip.sh
+# tailscale netcheck | grep IPv4 | awk '{ print $4 }' | cut -d ':' -f1
+```
+
 You can also retrieve this from your Tailscale admin panel.
 
 With that private IP address, follow [Tailscale's instructions][tailscale dns] to set up private or public DNS records pointing to your instance.
@@ -116,7 +129,13 @@ I use the public DNS server for my domain and set redirections to the private 10
 
 Navigate to `http://instance-ip:4567/` to access your Gollum server.
 If you have configured your DNS records and set the `wiki_domain` variable appropriately, you may also use `http://hostname/`.
-If you configured Let's encrypt, make sure you use `https://`. :smiley:
+If you configured Let's encrypt, make sure you use `https://`!
+
+## Next Steps
+
+You now have a Gollum wiki hosted on a private AWS server.
+I recommend adding a [sidebar][gollum sidebar] to set up a table of contents per-page.
+Scroll through the [Gollum wiki][gollum benefits] to get an idea what type of markup you can add beyond GitHub-Flavored Markdown (GFM).
 
 [awscli session manager plugin]: https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
 [awscli v2]: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
@@ -124,6 +143,7 @@ If you configured Let's encrypt, make sure you use `https://`. :smiley:
 [github secrets]: https://docs.github.com/en/actions/reference/encrypted-secrets
 [gollum]: https://github.com/gollum/gollum
 [gollum benefits]: https://github.com/gollum/gollum/wiki
+[gollum sidebar]: https://github.com/gollum/gollum/wiki#subpages
 [new repo]: https://github.com/new/
 [pipenv]: https://pypi.org/project/pipenv/
 [tailscale]: https://tailscale.com/
