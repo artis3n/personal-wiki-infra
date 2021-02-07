@@ -17,6 +17,11 @@
         url: http://127.0.0.1:4567/
       register: gollum_uri
 
+    - name: Get gitconfig content
+      ansible.builtin.slurp:
+        src: '/home/wiki/.gitconfig'
+      register: wiki_gitconfig
+
     - name: Assertions
       assert:
         that:
@@ -24,3 +29,6 @@
           - gollum_uri.status == 200
           - nginx_uri.url is search("\/Home")
           - gollum_uri.url is search("\/Home")
+          # [user]
+          #         name = 'Gollum Wiki'
+          - wiki_gitconfig.content == "W3VzZXJdCgluYW1lID0gJ0dvbGx1bSBXaWtpJwo="

@@ -32,15 +32,6 @@
     key_file: '{{ ssh_dir.path }}/{{ wiki_deploy_key }}'
   become_user: '{{ wiki_user.name }}'
 
-- name: Wiki | Ensure Git User
-  community.general.git_config:
-    repo: '{{ wiki_repo }}'
-    name: '{{ item.name }}'
-    value: '{{ item.value }}'
-    scope: 'local'
-    state: 'present'
-  loop: '{{ wiki_git_config }}'
-
 - name: Wiki | Copy Sync Script
   ansible.builtin.copy:
     src: './files/backup.sh'
