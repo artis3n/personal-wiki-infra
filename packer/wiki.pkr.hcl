@@ -98,8 +98,9 @@ source "amazon-ebs" "wiki" {
   iam_instance_profile    = var.iam_instance_profile
   instance_type           = var.instance_type[var.architecture]
   region                  = var.aws_region
-//  ssh_interface           = "session_manager"
-  ssh_username            = var.ec2_username
+  // Until https://github.com/hashicorp/packer/issues/10584 is fixed, rely on traditional SSH
+  //  ssh_interface           = "session_manager"
+  ssh_username = var.ec2_username
 
   launch_block_device_mappings {
     delete_on_termination = true
@@ -152,7 +153,7 @@ build {
   }
 
   provisioner "shell" {
-    inline = ["sudo reboot"]
+    inline            = ["sudo reboot"]
     expect_disconnect = true
   }
 
