@@ -65,7 +65,17 @@ echo "PASSWORD" > packer/ansible/.vaultpass
 - `TF_API_TOKEN`: The API token for your account in [Terraform Cloud][].
 - `VAULT_PASS`: The password used to encrypt your private key file in the previous step.
 
-6. **Optionally**, tweak the variables defined in `packer/wiki.pkr.hcl`. They are set to reasonable defaults, and you shouldn't need to change them. However, some of the more likely ones you may want to change are:
+6. Create a [Tailscale account][]. Create a [reusable auth key][tailscale authkey] from the admin panel.
+
+7. Go to AWS Session Manager Parameter Store and store the authkey in a `tailscale` paramter as a `SecureString`. Use the default Service Manager KMS key `alias/aws/ssm` to encrypt the parameter. If you use a different KMS key, you will need to update the following in `terraform/wiki.tf` to grant the server access to decrypt that parameter:
+
+```tf
+data "aws_kms_key" "ssm" {
+  key_id = "alias/aws/ssm"
+}
+```
+
+7. **Optionally**, tweak the variables defined in `packer/wiki.pkr.hcl`. They are set to reasonable defaults, and you shouldn't need to change them. However, some of the more likely ones you may want to change are:
 
 - `ami_name`: The name of the generated AMI, appended with `-<timestamp>`. Defaults to `packer-gollum-wiki`.
 - `architecture`: The type of source AMI architecture. Either `x86_64` or `arm64`. This is `arm64` by default.
@@ -75,7 +85,7 @@ echo "PASSWORD" > packer/ansible/.vaultpass
 
 There are other variables in `packer/wiki.pkr.hcl` which you can peruse as well.
 
-7. You are now ready to run this project.
+8. You are now ready to run this project.
 
 ## Run
 
@@ -117,5 +127,7 @@ If you configured Let's encrypt, make sure you use `https://`. :smiley:
 [new repo]: https://github.com/new/
 [pipenv]: https://pypi.org/project/pipenv/
 [tailscale]: https://tailscale.com/
+[tailscale account]: https://login.tailscale.com/admin
+[tailscale authkey]: https://login.tailscale.com/admin/authkeys
 [tailscale dns]: https://tailscale.com/kb/1054/dns
 [terraform cloud]: https://app.terraform.io/
