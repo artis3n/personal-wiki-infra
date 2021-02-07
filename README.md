@@ -118,8 +118,8 @@ You can retrieve the private IP address of this server from your Tailscale netwo
 
 ```bash
 > sudo -u ec2-user /bin/bash
-> /home/ec2-user/tailscale_ip.sh
-# tailscale netcheck | grep IPv4 | awk '{ print $4 }' | cut -d ':' -f1
+> tailscale status | grep personal-wiki
+# If more than one result, use the highest number, e.g. personal-wiki-2
 ```
 
 You can also retrieve this from your Tailscale admin panel.
