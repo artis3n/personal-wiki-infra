@@ -15,7 +15,7 @@ Key Benefits:
 - Secure, private access via a [Tailscale][] network
 - No open ingress ports on the server with terminal access via AWS Session Manager
 - Easy to deploy! Fork, tweak a few variables, then run two commands to build your own AMI and deploy a private server
-- Pay ~$2-3/month if running 24/7 (or less!) depending on spot instance prices
+- Pay ~$1.80/month if running 24/7 depending on spot instance prices
 
 # Setup
 
@@ -26,6 +26,10 @@ Fork this repo in order to configure it for your needs and follow the [Usage](#u
 # Usage
 
 Install dependencies with `make install`.
+This will set up a `pipenv` environment with Ansible and install the Ansible Galaxy roles and collections used by the playbook.
+
+While it helps to be familiar with each technology, you don't need to be an Ansible, Packer, or Terraform expert to use this repo.
+`make` commands are provided to make execution as simple as possible.
 
 ## Initial Configuration
 
@@ -69,7 +73,7 @@ echo "PASSWORD" > packer/ansible/.vaultpass
 - `aws_region`: The AWS region to deploy to. Defaults to `us-east-2`.
 - `disk_size`: The size of the root volume for the wiki server. Defaults to `15` GB, which should be plenty. I would caution setting it to `10` GB or less if you are going to include images or files like audio/video. The OS will take up most of that.
 
-There are other variables liked in `packer/wiki.pkr.hcl` which you can peruse as well.
+There are other variables in `packer/wiki.pkr.hcl` which you can peruse as well.
 
 7. You are now ready to run this project.
 
@@ -98,11 +102,11 @@ You can retrieve the private IP address of this server from your Tailscale netwo
 You can also retrieve this from your Tailscale admin panel.
 
 With that private IP address, follow [Tailscale's instructions][tailscale dns] to set up private or public DNS records pointing to your instance.
-I use the public DNS server for my domain and set redirections to the private 10.x Tailscale address.
+I use the public DNS server for my domain and set redirections to the private 10.x Tailscale address (`dig wiki.artis3nal.com`).
 
 Navigate to `http://instance-ip:4567/` to access your Gollum server.
-If you have configured your DNS records, you may also use `http://hostname/`.
-If uou configured Let's encrypt, make sure you use `https://`. :smiley:
+If you have configured your DNS records and set the `wiki_domain` variable appropriately, you may also use `http://hostname/`.
+If you configured Let's encrypt, make sure you use `https://`. :smiley:
 
 [awscli session manager plugin]: https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
 [awscli v2]: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
