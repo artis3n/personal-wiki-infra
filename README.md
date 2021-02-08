@@ -17,6 +17,8 @@ Key Benefits:
 - Easy to deploy! Fork, tweak a few variables, then run two commands to build your own AMI and deploy a private server
 - Pay ~$1.80/month if running 24/7 depending on spot instance prices
 
+<br>
+
 - [Setup](#setup)
 - [Usage](#usage)
   - [Initial Configuration](#initial-configuration)
