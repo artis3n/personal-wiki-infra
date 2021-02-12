@@ -10,6 +10,9 @@ resource "aws_spot_instance_request" "wiki" {
   root_block_device {
     encrypted   = true
     volume_size = 15
+    volume_type = "gp3"
+    iops = 3000
+    throughput = 125
     kms_key_id  = data.aws_kms_key.aws-ebs.arn
   }
 
