@@ -1,5 +1,5 @@
 variable "server_name" {
-  type = string
+  type    = string
   default = "terraform-gollum-wiki"
 }
 
@@ -29,16 +29,16 @@ variable "tailscale_parameter_name" {
 }
 
 variable "disk_size" {
-  type = number
+  type    = number
   default = 8
 }
 
 variable "disk_iops" {
-  type = number
+  type    = number
   default = 3000
 }
 
 variable "disk_throughput" {
-  type = number
+  type    = number
   default = 125
 }
