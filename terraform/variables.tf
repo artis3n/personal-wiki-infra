@@ -1,3 +1,8 @@
+variable "server_name" {
+  type = string
+  default = "terraform-gollum-wiki"
+}
+
 variable "aws-region" {
   type    = string
   default = "us-east-2"
@@ -21,4 +26,19 @@ variable "instance_type" {
 variable "tailscale_parameter_name" {
   type    = string
   default = "tailscale"
+}
+
+variable "disk_size" {
+  type = number
+  default = 8
+}
+
+variable "disk_iops" {
+  type = number
+  default = 3000
+}
+
+variable "disk_throughput" {
+  type = number
+  default = 125
 }

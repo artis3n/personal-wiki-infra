@@ -9,10 +9,10 @@ resource "aws_spot_instance_request" "wiki" {
 
   root_block_device {
     encrypted   = true
-    volume_size = 15
+    volume_size = var.disk_size
     volume_type = "gp3"
-    iops        = 3000
-    throughput  = 125
+    iops        = var.disk_iops
+    throughput  = var.disk_throughput
     kms_key_id  = data.aws_kms_key.aws-ebs.arn
   }
 
@@ -26,7 +26,7 @@ resource "aws_spot_instance_request" "wiki" {
   spot_type            = "persistent"
 
   tags = {
-    Name = "terraform-gollum-wiki"
+    Name = var.server_name
   }
 
   provisioner "local-exec" {

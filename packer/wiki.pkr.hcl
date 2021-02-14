@@ -31,7 +31,7 @@ variable "aws_region" {
 variable "disk_size" {
   type        = number
   description = "The size of the EBS volume to create."
-  default     = 15
+  default     = 8
 }
 
 variable "aws_access_key" {
