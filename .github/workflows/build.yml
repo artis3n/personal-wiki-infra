@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+    # Don't build a new AMI if any of these files are the only changes
+    paths-ignore:
+      - Pipfile
+      - Pipfile.lock
+      - .github/**
+      - README.md
+      - Makefile
+      - LICENSE
+      - .gitignore
 
 jobs:
   packer:
