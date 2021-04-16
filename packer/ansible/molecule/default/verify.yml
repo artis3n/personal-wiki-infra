@@ -22,10 +22,6 @@
         src: '/home/wiki/.gitconfig'
       register: wiki_gitconfig
 
-    - name: Test
-      ansible.builtin.debug:
-        var: wiki_gitconfig
-
     - name: Assertions
       assert:
         that:
@@ -34,5 +30,5 @@
           - nginx_uri.url is search("\/Home")
           - gollum_uri.url is search("\/Home")
           # [user]
-          #         name = 'Gollum Wiki'
-          - wiki_gitconfig.content == "W3VzZXJdCgluYW1lID0gJ0dvbGx1bSBXaWtpJwo="
+          #         name = Gollum Wiki
+          - wiki_gitconfig.content == "W3VzZXJdCgluYW1lID0gR29sbHVtIFdpa2kK"
