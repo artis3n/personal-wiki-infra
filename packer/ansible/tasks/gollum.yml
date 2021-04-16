@@ -11,7 +11,7 @@
 
 - name: Gollum | Bootstrap cmake - will take some time
   ansible.builtin.shell:
-    cmd: './bootstrap && touch /tmp/cmake-bootstrapped'
+    cmd: './bootstrap -- -DCMAKE_BUILD_TYPE:STRING=Release && touch /tmp/cmake-bootstrapped'
     chdir: '/tmp/cmake-{{ cmake_version }}.0'
     creates: '/tmp/cmake-bootstrapped'
   async: 1800

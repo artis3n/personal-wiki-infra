@@ -22,6 +22,10 @@
         src: '/home/wiki/.gitconfig'
       register: wiki_gitconfig
 
+    - name: Test
+      ansible.builtin.debug:
+        var: wiki_gitconfig
+
     - name: Assertions
       assert:
         that:
